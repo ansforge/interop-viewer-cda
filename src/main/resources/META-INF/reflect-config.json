@@ -1,0 +1,31 @@
+[
+  {
+    "name":"java.lang.Class",
+    "methods":[{"name":"newInstance","parameterTypes":[]}]
+  },
+  
+   {
+    "name":"java.lang.Class",
+    "methods":[{"name":"getMethod","parameterTypes":[]}]
+  },
+  
+  {
+    "name":"java.lang.Class",
+    "methods":[{"name":"getDeclaredMethod","parameterTypes":[]}]
+  },
+  
+  {
+    "name":"java.lang.Class",
+    "methods":[{"name":"getConstructor","parameterTypes":[]}]
+  },
+  
+  {
+    "name":"java.lang.Class",
+    "methods":[{"name":"getDeclaredConstructor","parameterTypes":[]}]
+  },
+  
+  {
+    "name":"java.lang.ClassLoader",
+    "methods":[{"name":"loadClass","parameterTypes":[]}]
+  }
+]
