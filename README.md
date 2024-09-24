@@ -10,7 +10,7 @@ Le Viewer CDA de l'ANS permet :
 - D'ouvrir un document CDA dans un éditeur (qui permet notamment de visualiser l'arborescence du CDA)
 - D'ouvrir un document CDA dans l’éditeur par défaut des fichiers XML sur le poste (Oxygen par exemple)
 
-2. Utilisation du Viewer CDA de l'ANS :
+**Utilisation du Viewer CDA de l'ANS :**
 
 Pour ouvrir le Viewer CDA, double cliquez sur ANS_Viewer-CDA_2023.01.jar.
 
@@ -24,7 +24,7 @@ Vous devez ensuite :
 - Vous pouvez utiliser une feuille de style personnalisée (dans ce cas, vous devez la déposer dans le répertoire FeuilleDeStyle de testContenuCDA).
 - Si le document CDA sélectionné est un CR-Bio auto présentable, il vous sera possible de l’afficher avec la feuille de style cda_CRBIO.xsl présente   dans le répertoire FeuilleDeStyle
 
-3. Prérequis
+**Prérequis :**
 
 - Java doit être installé sur votre poste utilisateur.
 
