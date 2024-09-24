@@ -1,4 +1,4 @@
-﻿1. Introduction :
+**Introduction :**
 
 La visualisation des documents CDA directement via les navigateurs internet étant de moins en moins possible pour des raisons de sécurité, l'ANS a développé un Viewer CDA.
 
