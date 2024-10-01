@@ -2,6 +2,7 @@ package com.ans.cda;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,9 +14,11 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -39,6 +42,7 @@ import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -59,9 +63,13 @@ import com.ans.cda.utilities.Utilities6;
 import com.ans.cda.utilities.Utilities7;
 import com.ans.cda.utilities.Utils;
 import com.ans.cda.utilities.Utils1;
-import com.aspose.barcode.generation.BarCodeImageFormat;
-import com.aspose.barcode.generation.BarcodeGenerator;
-import com.aspose.barcode.generation.DataMatrixEncodeMode;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.datamatrix.encoder.SymbolShapeHint;
 import com.sun.webkit.WebPage;
 
 import javafx.application.Application;
@@ -786,19 +794,21 @@ public class WebViewSample extends Application {
 								if (content != null) {
 									final String dataMatrixValue = content.val();
 									if (dataMatrixValue != null && !dataMatrixValue.isEmpty()) {
-										// Initialiser un objet de la classe BarcodeGenerator
-										final BarcodeGenerator gen = Utilities2.getBarcode(dataMatrixValue);
-										// D�finir les pixels
-										Utilities2.getXDimension(gen).setPixels(4);
-										// R�glez le mode d'encodage sur Auto
-										Utilities2.getDataMatrix(gen)
-												.setDataMatrixEncodeMode(DataMatrixEncodeMode.AUTO);
-										final Path matrix = Files.createTempFile(null, Constant.PNGEXT);
-										gen.save(matrix.toString(), BarCodeImageFormat.PNG);
-										final Element img = Utilities2.getElement(matrix);
+										final Map<EncodeHintType, Object> hints = new HashMap<>();
+										hints.put(EncodeHintType.DATA_MATRIX_SHAPE, SymbolShapeHint.FORCE_SQUARE);
+										// Generate the DataMatrix barcode
+										final BitMatrix matrix = new MultiFormatWriter().encode(dataMatrixValue,
+												BarcodeFormat.DATA_MATRIX, 200, 200, hints);
+
+										// Define the output file path
+										final Path path = Files.createTempFile(null, Constant.PNGEXT);
+										// Save the barcode image as PNG
+										MatrixToImageWriter.writeToPath(matrix, "PNG", path);
+										final Element img = Utilities2.getElement(path);
 										content.appendChild(img);
 										content.val("");
 										content.attr("style", "padding:0px 35px;");
+
 									}
 								}
 							}
@@ -888,7 +898,7 @@ public class WebViewSample extends Application {
 							Utilities6.load(webEngine, urlStr);
 							menuBar.setDisable(false);
 							mediator.setWebEngine(webEngine);
-						} catch (final IOException e) {
+						} catch (final IOException | WriterException e) {
 							if (LOG.isInfoEnabled()) {
 								final String error = e.getMessage();
 								LOG.error(error);
@@ -1056,8 +1066,67 @@ public class WebViewSample extends Application {
 							final Path pathFOPFolder = Paths.get(str);
 							Path pathFOP;
 							String xslPath;
-							if(radio2 != null && radio2.isSelected()) {
-								xslPath = textFieldxsl.getText();
+							if (radio2 != null && radio2.isSelected()) {
+								// Start DATAMATRIX
+								InputStream targetStream;
+								Path targetFilePath = null;
+								Path targetFileLTeen = null;
+								Path targetNarrativeFile = null;
+								try {
+									final Path file1 = Files.createTempFile(null, Constant.HTMLEXT);
+									final String tempDir = System.getProperty("java.io.tmpdir");
+									final Path pathDir = new File(tempDir).toPath();
+									final File sourceFile = new File(textFieldxsl.getText());
+									targetFilePath = pathDir.resolve(sourceFile.getName());
+									Files.copy(sourceFile.toPath(), targetFilePath,
+											StandardCopyOption.REPLACE_EXISTING);
+									final File lTeenN = new File(sourceFile.getParent() + "//cda_l10n.xml");
+									targetFileLTeen = pathDir.resolve(lTeenN.getName());
+									Files.copy(lTeenN.toPath(), targetFileLTeen, StandardCopyOption.REPLACE_EXISTING);
+									final File narrative = new File(
+											sourceFile.getParent() + "//cda_narrativeblock.xml");
+									targetNarrativeFile = pathDir.resolve(narrative.getName());
+									Files.copy(narrative.toPath(), targetNarrativeFile,
+											StandardCopyOption.REPLACE_EXISTING);
+									final Path stream = Utilities6.transform(textFieldxsl.getText(),
+											tmpFile.getAbsolutePath(), file1);
+									final File url1 = new File(stream.toString());
+									targetStream = Files.newInputStream(Paths.get(url1.toURI()));
+									final Document doc = Jsoup.parse(targetStream, Constant.UTF8, "");
+									final Collection<Element> contents = doc.getElementsByClass("barcodeStyle");
+									for (final Element content : contents) {
+										if (content != null) {
+											final String dataMatrixValue = content.val();
+											if (dataMatrixValue != null && !dataMatrixValue.isEmpty()) {
+												final Map<EncodeHintType, Object> hints = new HashMap<>();
+												hints.put(EncodeHintType.DATA_MATRIX_SHAPE,
+														SymbolShapeHint.FORCE_SQUARE);
+												final BitMatrix matrix = new MultiFormatWriter().encode(dataMatrixValue,
+														BarcodeFormat.DATA_MATRIX, 200, 200, hints);
+												final Path paths = Files.createTempFile(null, Constant.PNGEXT);
+												MatrixToImageWriter.writeToPath(matrix, "PNG", paths);
+												final Document document = Jsoup.parse(targetFilePath.toFile(), "UTF-8",
+														"", Parser.xmlParser());
+												final Element externalGraphic = document.getElementById("datamatrixId");
+												if (externalGraphic != null) {
+													externalGraphic.attr("src",
+															"url('file:///" + paths.toString() + "')");
+												}
+												final File outputFile = targetFilePath.toFile();
+												try (FileWriter writer = new FileWriter(outputFile)) {
+													writer.write(document.outerHtml());
+												}
+											}
+										}
+									}
+								} catch (final IOException | WriterException e) {
+									if (LOG.isInfoEnabled()) {
+										final String error = e.getMessage();
+										LOG.error(error);
+									}
+								}
+								// FIN DATAMATRIX
+								xslPath = targetFilePath.toString();
 								// externe fds xsl folder
 								if (!Files.exists(pathFOPFolder)) {
 									pathFOP = pathFOPFolder.getParent().getParent().getParent().getParent();
@@ -1119,9 +1188,78 @@ public class WebViewSample extends Application {
 										}
 									}
 								}
-							}
-							else if (exist) {
-								xslPath = textFieldxsl.getText();
+							} else if (exist) {
+								// Start DATAMATRIX
+								InputStream targetStream;
+								Path targetFilePath = null;
+								Path targetFileLTeen = null;
+								Path targetNarrativeFile = null;
+								try {
+									final Path file1 = Files.createTempFile(null, Constant.HTMLEXT);
+									final String tempDir = System.getProperty("java.io.tmpdir");
+									final Path pathDir = new File(tempDir).toPath();
+									final File sourceFile = new File(textFieldxsl.getText());
+									targetFilePath = pathDir.resolve(sourceFile.getName());
+									Files.copy(sourceFile.toPath(), targetFilePath,
+											StandardCopyOption.REPLACE_EXISTING);
+
+									File lTeenN = null;
+									File narrative = null;
+									if (isAutopresentablePdf) {
+										lTeenN = new File(sourceFile.getParentFile().getParent()
+												+ "//FeuilleDeStyle//cda_l10n.xml");
+										narrative = new File(sourceFile.getParentFile().getParent()
+												+ "//FeuilleDeStyle//cda_narrativeblock.xml");
+									} else {
+										lTeenN = new File(sourceFile.getParent() + "//cda_l10n.xml");
+										narrative = new File(sourceFile.getParent() + "//cda_narrativeblock.xml");
+									}
+
+									targetFileLTeen = pathDir.resolve(lTeenN.getName());
+									Files.copy(lTeenN.toPath(), targetFileLTeen, StandardCopyOption.REPLACE_EXISTING);
+
+									targetNarrativeFile = pathDir.resolve(narrative.getName());
+									Files.copy(narrative.toPath(), targetNarrativeFile,
+											StandardCopyOption.REPLACE_EXISTING);
+									final Path stream = Utilities6.transform(targetFilePath.toString(),
+											textField.getText(), file1);
+									final File url1 = new File(stream.toString());
+									targetStream = Files.newInputStream(Paths.get(url1.toURI()));
+									final Document doc = Jsoup.parse(targetStream, Constant.UTF8, "");
+									final Collection<Element> contents = doc.getElementsByClass("barcodeStyle");
+									for (final Element content : contents) {
+										if (content != null) {
+											final String dataMatrixValue = content.val();
+											if (dataMatrixValue != null && !dataMatrixValue.isEmpty()) {
+												final Map<EncodeHintType, Object> hints = new HashMap<>();
+												hints.put(EncodeHintType.DATA_MATRIX_SHAPE,
+														SymbolShapeHint.FORCE_SQUARE);
+												final BitMatrix matrix = new MultiFormatWriter().encode(dataMatrixValue,
+														BarcodeFormat.DATA_MATRIX, 200, 200, hints);
+												final Path paths = Files.createTempFile(null, Constant.PNGEXT);
+												MatrixToImageWriter.writeToPath(matrix, "PNG", paths);
+												final Document document = Jsoup.parse(targetFilePath.toFile(), "UTF-8",
+														"", Parser.xmlParser());
+												final Element externalGraphic = document.getElementById("datamatrixId");
+												if (externalGraphic != null) {
+													externalGraphic.attr("src",
+															"url('file:///" + paths.toString() + "')");
+												}
+												final File outputFile = targetFilePath.toFile();
+												try (FileWriter writer = new FileWriter(outputFile)) {
+													writer.write(document.outerHtml());
+												}
+											}
+										}
+									}
+								} catch (final IOException | WriterException e) {
+									if (LOG.isInfoEnabled()) {
+										final String error = e.getMessage();
+										LOG.error(error);
+									}
+								}
+								// FIN DATAMATRIX
+								xslPath = targetFilePath.toString();
 								// externe fds xsl folder
 								if (!Files.exists(pathFOPFolder)) {
 									pathFOP = pathFOPFolder.getParent().getParent().getParent().getParent();
