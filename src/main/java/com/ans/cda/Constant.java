@@ -77,7 +77,7 @@ public class Constant {
 	/**
 	 * path_sch foldre
 	 */
-	public static final String PATH_MOTEUR = "\\schematrons\\moteur\\TCC-GUI\\TCC-GUI.exe";
+	public static final String PATH_MOTEUR = "\\schematrons\\moteur\\TCC-GUI\\TCC-GUI.jar";
 	/**
 	 * path_bat foldre
 	 */
