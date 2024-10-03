@@ -978,19 +978,19 @@ public class WebViewSample extends Application {
 						final String path = file.getAbsolutePath().concat(Constant.PATH_MOTEUR);
 						if (new File(path).exists()) {
 							try {
-								final ProcessBuilder pBuilder = new ProcessBuilder(path,
-										new File(textField.getText()).getAbsolutePath(),
-										INUtility.getLocale().toLanguageTag());
-								pBuilder.redirectErrorStream(true);
-								final Process process = pBuilder.start();
-								final InputStream is = process.getInputStream();
+								final String command[] = { "java", "-jar", path, textField.getText(),
+										INUtility.getLocale().toLanguageTag() };
+								final ProcessBuilder pbuilder = new ProcessBuilder(command);
+								pbuilder.redirectErrorStream(true);
+								final Process process = pbuilder.start();
+								final InputStream istream = process.getInputStream();
 								// thread to handle or gobble text sent from input stream
 								new Thread(() -> {
 									// try with resources
-									try (BufferedReader reader = new BufferedReader(new InputStreamReader(is));) {
-										String line = null;
+									try (BufferedReader reader = new BufferedReader(new InputStreamReader(istream));) {
+										String line;
 										while ((line = reader.readLine()) != null) {
-											// TODO: handle line
+											LOG.info(line);
 										}
 									} catch (final IOException e) {
 										if (LOG.isInfoEnabled()) {
