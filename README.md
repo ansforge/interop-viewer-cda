@@ -13,19 +13,19 @@ Le Viewer CDA de l'ANS permet :
 
 ***Java***
 
-Java doit être installé sur votre poste utilisateur. Version 19 ou ultérieure.
+Java doit être installé sur votre poste utilisateur.
 
 Vous devez disposer de testContenuCDA sur votre poste utilisateur.
 
-Problème possible de lancement lié à Java
+Problème possible de lancement lié à Java :
 
-Si vous avez l'exception "JVM Launcher exception", vous devez mettre à jour votre version de Java.
+  Si vous avez l'exception "JVM Launcher exception", vous devez mettre à jour votre version de Java.
 
-Pour cela, installez la version 19 de Java (ou ultérieure) en cliquant sur le lien https://download.oracle.com/java/19/archive/jdk-19.0.2_windows-x64_bin.exe
+  Pour cela, installez la version 19 de Java (ou ultérieure) en cliquant sur le lien https://download.oracle.com/java/19/archive/jdk-19.0.2_windows-x64_bin.exe
 
-Après l’installation de Java, ouvrez l’invite de commande (CMD) et tapez "java -version" pour vous assurer que la nouvelle version de Java est installée.
+  Après l’installation de Java, ouvrez l’invite de commande (CMD) et tapez "java -version" pour vous assurer que la nouvelle version de Java est installée.
 
-Vous pouvez alors relancer le Viewer CDA.
+  Vous pouvez alors relancer le Viewer CDA.
 
 Pour le bon fonctionnement du Viewer CDA de l'ANS, vous devez respecter l’arborescence du dossier "testContenuCDA".
 
@@ -35,7 +35,7 @@ Vous devez télécharger l'outil testContenuCDA publié sur https://github.com/a
 
 ***Télécharger le viewer CDA***
 
-Vous devez télécharger le viewer CDA à partir du testContenuCDA sur GitHub puis sélectionnez la realese « ANS_Viewer-CDA_2023.01.jar » pour le télécharger.
+Vous devez télécharger le viewer CDA à partir du projet "interop-viewer-cda" sur GitHub (https://github.com/ansforge/interop-viewer-cda) puis sélectionnez la realese « ANS_Viewer-CDA_2023.01.jar » pour le télécharger.
 
 **Utilisation du Viewer CDA de l'ANS**
 
